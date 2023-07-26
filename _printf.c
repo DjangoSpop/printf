@@ -1,45 +1,105 @@
-#include "main.h"
-/**
- * _printf - is a function that selects the correct function to print.
- * @format: identifier to look for.
- * Return: the length of the string.
- */
-int _printf(const char * const format, ...)
-{
-	convert_match m[] = {
-		{"%s", printf_string}, {"%c", printf_char},
-		{"%%", printf_37},
-		{"%i", printf_int}, {"%d", printf_dec}, {"%r", printf_srev},
-		{"%R", printf_rot13}, {"%b", printf_bin}, {"%u", printf_unsigned},
-		{"%o", printf_oct}, {"%x", printf_hex}, {"%X", printf_HEX},
-		{"%S", printf_exclusive_string}, {"%p", printf_pointer}
-	};
+#include <stdio.h>
+#include <stdarg.h>
 
-	va_list args;
-	int i = 0, j, len = 0;
+int _printf(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
 
-	va_start(args, format);
-	if (format == NULL || (format[0] == '%' && format[1] == '\0'))
-		return (-1);
+    int count = 0;
+    char ch;
 
-Here:
-	while (format[i] != '\0')
-	{
-		j = 13;
-		while (j >= 0)
-		{
-			if (m[j].id[0] == format[i] && m[j].id[1] == format[i + 1])
-			{
-				len += m[j].f(args);
-				i = i + 2;
-				goto Here;
-			}
-			j--;
-		}
-		_putchar(format[i]);
-		len++;
-		i++;
-	}
-	va_end(args);
-	return (len);
+    while (*format) {
+        if (*format == '%') {
+            format++; // Move to the next character after '%'
+
+            // Flags
+            int flag_plus = 0;
+            int flag_space = 0;
+            int flag_hash = 0;
+            
+            // Check for flags
+            while (*format == '+' || *format == ' ' || *format == '#') {
+                if (*format == '+') {
+                    flag_plus = 1;
+                } else if (*format == ' ') {
+                    flag_space = 1;
+                } else if (*format == '#') {
+                    flag_hash = 1;
+                }
+                format++;
+            }
+
+            switch (*format) {
+                case 'c':
+                    ch = va_arg(args, int);
+                    putchar(ch);
+                    count++;
+                    break;
+                case 's': {
+                    char *str = va_arg(args, char *);
+                    while (*str) {
+                        putchar(*str);
+                        str++;
+                        count++;
+                    }
+                    break;
+                }
+                case 'p': {
+                    void *ptr = va_arg(args, void *);
+                    printf("%p", ptr);
+                    count += sizeof(void *);
+                    break;
+                }
+                case '%':
+                    putchar('%');
+                    count++;
+                    break;
+                default:
+                    // Handle unsupported format specifiers (optional)
+                    putchar(*format);
+                    count++;
+            }
+            
+            // Apply flags for non-custom conversion specifiers
+            if (flag_plus && (*format == 'd' || *format == 'i')) {
+                putchar('+');
+                count++;
+            }
+            
+            if (flag_space && (*format == 'd' || *format == 'i')) {
+                putchar(' ');
+                count++;
+            }
+            
+            if (flag_hash && *format == 'x') {
+                putchar('0');
+                putchar('x');
+                count += 2;
+            } else if (flag_hash && *format == 'X') {
+                putchar('0');
+                putchar('X');
+                count += 2;
+            } else if (flag_hash && *format == 'o') {
+                putchar('0');
+                count++;
+            }
+        } else {
+            putchar(*format);
+            count++;
+        }
+        format++;
+    }
+
+    va_end(args);
+    return count;
+}
+
+int main() {
+    int value = 42;
+    int *ptr = &value;
+    _printf("Address of value: %p\n", ptr);
+    _printf("Integer: %+d, %+i\n", 10, -20);
+    _printf("Hexadecimal: %#x, %#X\n", 255, 255);
+    _printf("Octal: %#o\n", 42);
+    return 0;
 }
