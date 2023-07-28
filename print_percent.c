@@ -1,4 +1,4 @@
-#include "holberton.h"
+#include "main.h"
 /**
 * print_percent - Print %
 * @vlist: arguments passed to print

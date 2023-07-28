@@ -1,4 +1,4 @@
-#include "holberton.h"
+#include "main.h"
 char *p_binary(int n);
 /**
  * print_binary - Print binary

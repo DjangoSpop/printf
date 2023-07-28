@@ -1,4 +1,4 @@
-#include "holberton.h"
+#include "main.h"
 /**
  * format_type - type of function
  * @s: input

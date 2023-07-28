@@ -1,4 +1,4 @@
-#include "holberton.h"
+#include "main.h"
 int print_HEXA_S(char s, char *output_p, int o_p);
 /**
  * print_S_string - prints a string with specifier S
